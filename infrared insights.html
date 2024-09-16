@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Leigha DeRango">
+
+<title>Infrared Insights</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="infrared insights_files/libs/clipboard/clipboard.min.js"></script>
+<script src="infrared insights_files/libs/quarto-html/quarto.js"></script>
+<script src="infrared insights_files/libs/quarto-html/popper.min.js"></script>
+<script src="infrared insights_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="infrared insights_files/libs/quarto-html/anchor.min.js"></script>
+<link href="infrared insights_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="infrared insights_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="infrared insights_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="infrared insights_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="infrared insights_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Infrared Insights</h1>
+<p class="subtitle lead">Identifying Leaky Windows with Small-Sample Thermal Image Analysis Techniques</p>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Leigha DeRango </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Loyola University Chicago
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>This project aims to use cost-effective thermal imaging technology in combination with commodity hardware to identify windows that are “leaky”, or fail to successfully insulate their seams. Currently, this identification is done mostly through professional services, who offer to take the image and then manually analyze it and return recommendations based on their in-house conclusions. However, this type of analysis does not prevent companies from referring unnecessary procedures to clients with the goal of making money off of performing the procedure. Generally, we wish to allow such analysis to be more easily done by homeowners, providing them with the tools to decide how to best take care of their home. This involves three parts: collecting images and metadata such as direction the window is facing, outside temperature, etc; analyzing the images to identify what trends may be indicating leakiness; and finally, creating a method to take in the image, identify whether this trend is present in the image or not, and returning that determination to the user. While this project does not come close to accomplishing these goals, the goals did guide our research for handling what little preliminary data we did have. In the end, we provide a summary of thermal imaging techniques and how these methodologies guide an effective procedure to get the most useful images, along with functions to identify the shape of the window and temperature scale of the image. We also provide recommendations for reperforming this project and moving forward with image analysis.</p>
+</section>
+<section id="problem-statement" class="level2">
+<h2 class="anchored" data-anchor-id="problem-statement">Problem Statement</h2>
+<p>Currently, identifying leaky windows is mostly done through manual thermal imaging and visual inspection, and does not utilize growing technology that can handle and recognize trends in thermal images that may speed up this process and put more information in the hands of homeowners. This development will help various stakeholders identify infrastructure issues, whether that be homeowners or building development administrators, save time and money by quickly and accurately identifying issues, and generally improve a homeowners’ ability to monitor the state of their home without requiring a third party. Overall, simplifying the process of analyzing thermal images will improve the quality of future investments in the insulation and window industries.</p>
+<p>The severe limitation this study faces is small sample size. Modern computer vision techniques utilize machine learning, which requires minimum sample sizes in the thousands for very simple projects, even a binary classification of “leaky” or “not leaky”. It is because of this that we acknowledge the power of computer vision in accomplishing our goals, but cannot employ it to its fullest extent in this project.</p>
+</section>
+<section id="data-analysis-and-methodology" class="level2">
+<h2 class="anchored" data-anchor-id="data-analysis-and-methodology">Data Analysis and Methodology</h2>
+<p>We began the project by attempting to efficiently familiarize ourselves with image processing techniques so that we could give the field researchers their procedure as soon as possible, in order to facilitate as much data collection as possible. The most important aspect of processing in thiss case, given the unavailability of computer vision for analysis, is getting the most straightforward and uniform images as possible. This will facilitate batch processing and reproducibility of results from one image to another. The field researchers were instructed to take images as straight on as possible and take only images of windows that would fit in the entire frame from between 1 to 6 feet away, as this was the distance recommended by the camera manufacturers for optimizing the information the camera could capture. A full copy of the document given to the field researchers is attached as Appendix A. It should be noted that we did not obtain a single image (out of about 70 received) that met the requirements listed in the procedure.</p>
+<p>Image processing is split into three sequential procedures: pre-processing, processing, and computer vision. The OpenCV package in Python provides a wide range of image processing functionality and was used for the entirety of the following analysis. Image pre-processing involves reading in and cleaning the data, along with performing any necessary adjustments to make the images more conducive to later analysis. For us, image pre-processing included Gaussian blurring and contrast enhancing, before thresholding to complete the binarization of the image necessary for finding the shape of the window, called a contour. These are common pre-processing techniques, which were chosen after evaluating a variety of possibilities and what they may contribute to identifying regions of a window (Khandelwal). Gaussian blurring performs noise reduction by establishing a kernel and then applying a certain number of standard deviations of the kernel value to the pixel at the center of that kernel. Larger standard deviations result in blurrier images. This parameter could be tuned if more data was acquired. To improve contrast of the image, histogram equalization was used. Histogram equalization takes the range of pixel intensity values of the existing image and spreads out the most frequent values to create greater contrast in the image. Thresholding is used to help identify an object and separate it from the background of an image, and works by selecting a specific pixel intensity value. Any pixel with a value less than the threshold selected is set to zero, or white, and any pixel greater is set to the maximum value chosen (often 255, or black). In essence, this technique returns a flattened image where the object of interest is one color and the background is the other. This value is another processing parameter which could be tuned given more images.</p>
+<p>The next step is image processing, which performs analysis but does not necessarily generate knowledge about the image, as a neural net may be able to do. Using simple image processing techniques and OpenCV, the values of a thermal image can be used to identify the region of the window in the image, also called the “contour”. Once the region of the window is identified, we examine different methods that may begin to identify indicators of leakiness. FindContours() identifies the boundary of points between the black and white regions identified in pre-processing. This process can be visualized with <a href="#fig-imgproc" class="quarto-xref">Figure&nbsp;1</a>, which shows our test image at four stages: raw, gray-scaled and blurred, thresholded, and finally with the largest contour overlaid on the raw image.</p>
+<div id="cell-fig-imgproc" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div id="fig-imgproc" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-imgproc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="infrared%20insights_files/figure-html/fig-imgproc-output-1.png" width="540" height="106" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-imgproc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Progression of Image Processing
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>To better account for variation around the edges of a leak, we also utilized OpenCV’s approxPolyDP() to simplify the contours and ideally better identify a normally-shaped window. The function takes an additional input parameter, epsilon, which is a threshold for how important a point on the contour must be in order to be retained in the simplified polygon, as determined by the Ramer–Douglas–Peucker algorithm. A higher epsilon results in less edges in the final contour (Open Source Computer Vision). The result of this approximation on the sample image can be seen in <a href="#fig-contourprog" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<div id="cell-fig-contourprog" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div id="fig-contourprog" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-contourprog-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="infrared%20insights_files/figure-html/fig-contourprog-output-1.png" width="540" height="201" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-contourprog-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Result of Contour Approximation on Region Definition
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Using this framework, we created a series of scripts to process a collection of images at one time. Knowing that our end goal would be to make this process of classifying a window as ‘leaky’ or ‘not leaky’ as autonomous as possible, scripting the image processing steps is the first step towards being able to gain enough data to utilize a neural net or other image classification model. The first challenge to this process is generating the contours for each image. Due to the binarization of the image before identifying the contour, if the pane of a window is not uniformly colored, the contour may not identify the whole window based on the threshold values. An example of this can be seen in the sample image used above, where the contour indents into the middle of the window because of the angle of the image. To account for this, we attempt to loop through increasing values of epsilon until cv2.findContours() returns a shape with four edges, in order to best approximate rectangular windows. This does render the analysis inadequate for non-rectangular windows, though future work may allow for a larger sample size and more room to account for a variety of window shapes. If the loop does not find a four-sided contour by the time epsilon reaches 0.15, it returns an error message with a list of the number of edges it found for each. The function returns a list of the identified epsilon value and the contour object it corresponds to. The issue with this method of selecting a contour can be seen in <a href="#fig-contourfour" class="quarto-xref">Figure&nbsp;3</a>, which shows that although the contour is defined by four edges, those four edges do not form a rectangle. Discussion on solutions to this will be held until the end.</p>
+<div id="68994c1c" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to read an opencv format image and return a value of epsilon that produces an approximated 4-edge contour</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> approx_four_sides(image):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># put image into thresholded form</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  imgRGB <span class="op">=</span> cv2.cvtColor(image, cv2.COLOR_BGR2RGB) <span class="co"># translate from CV to RGB format </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  imgGray <span class="op">=</span> cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) <span class="co"># make image Grayscale</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  imgBlur <span class="op">=</span> cv2.GaussianBlur(imgGray,(<span class="dv">7</span>,<span class="dv">7</span>),<span class="dv">1</span>) <span class="co"># apply Gaussian Blur</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  imgEqualized <span class="op">=</span> cv2.equalizeHist(imgBlur) <span class="co"># increase contrast</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  imgBlurer <span class="op">=</span> cv2.GaussianBlur(imgEqualized,(<span class="dv">15</span>,<span class="dv">15</span>),<span class="dv">1</span>) <span class="co"># apply stronger Gaussian Blur</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  _, threshold <span class="op">=</span> cv2.threshold(imgBlurer, <span class="dv">110</span>, <span class="dv">270</span>, cv2.THRESH_BINARY) <span class="co"># threshold</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  threshold_inverted <span class="op">=</span> cv2.bitwise_not(threshold) <span class="co"># invert (contours looks for white space)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate original contour</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  contours, _ <span class="op">=</span> cv2.findContours(threshold_inverted, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># filter out contours based on area to get the largest</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  orig_contour <span class="op">=</span> <span class="bu">max</span>(contours, key<span class="op">=</span>cv2.contourArea)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># initialize</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  eps <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  epsilon <span class="op">=</span> eps <span class="op">*</span> cv2.arcLength(orig_contour, <span class="va">True</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  approx <span class="op">=</span> cv2.approxPolyDP(orig_contour, epsilon, <span class="va">True</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  len_vec <span class="op">=</span> []</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  len_vec.append(<span class="bu">len</span>(approx))</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="bu">len</span>(approx) <span class="op">!=</span> <span class="dv">4</span>:</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># for each value of epsilon from (0.01 - 0.15 by 0.005)</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    eps <span class="op">=</span> eps <span class="op">+</span> <span class="fl">0.005</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">#generate approximation of original contour</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    epsilon <span class="op">=</span> eps <span class="op">*</span> cv2.arcLength(orig_contour, <span class="va">True</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    approx <span class="op">=</span> cv2.approxPolyDP(orig_contour, epsilon, <span class="va">True</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    len_vec.append(<span class="bu">len</span>(approx))</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if num edges is 4 (rectangle)</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> eps <span class="op">&gt;=</span> <span class="fl">0.15</span>:</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>      msg <span class="op">=</span> <span class="st">'No four sided figure could be identified, search went: </span><span class="sc">{}</span><span class="st">'</span>.<span class="bu">format</span>(len_vec) </span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> [msg, <span class="dv">0</span>]</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [eps, approx]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-fig-contourfour" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-contourfour" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-contourfour-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="infrared%20insights_files/figure-html/fig-contourfour-output-1.png" width="500" height="389" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-contourfour-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Resulting Four Sided Contour
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In theory, with this function to generate an approximated contour for each image, we can take a list of images, generate their contours, and calculate the mean grayscale value in the region inside and outside of the window, which can be used in future temperature calculations. With the end goal of being able to evaluate “leakage” of a window, these grayscale values may serve as a reference point for that evaluation.</p>
+<p>Also in line with this goal, the grayscale values still need to be translated to temperature values.In order to maximize the amount of information we could get from each image, the cameras given to the researchers were set to a variable scale. This means that the RGB scale is the same for every image, but the temperatures it represents change from image to image. However, the HIKMicro E1L camera does not store any form of metadata, only the jpeg. Along with our very small sample of images, this means that to translate the RGB to a temperature, we must use an existing optical character recognition (OCR) package to scrape the values off of the image. This process is made available due to the constant location of the scale on each image. If the scale location was variable, this method would have to be adapted. Using Tesseract and their Python driver pyTesseract, either end of the scale can be pulled out and run through image_to_string() to return a string of characters.</p>
+<p>The complication of some of these images is that the coolest temperature is lower than the camera can register, which generally happens when the camera captures part of the sky or something much further away than the focus of the image. These values will be imputed to -30, which is the minimum temperature the camera can register. To complete the scale to temperature translation, we grayscale the image. By grayscaling, each pixel value is in a single dimension, a value from 0 to 1 which progressively gets darker, to represent the one dimension variable we are trying to measure, temperature, as opposed to a three dimension RGB value. The following function takes in a list of OpenCV image objects and extracts all of this information into a dataframe seven columns: the original image, epsilon to generate a four-sided contour, the approximated four-sided contour, the mean grayscale value inside the window region, the mean grayscale value outside the window region, the bottom scale value, and the top scale value.</p>
+<div id="c40c2aee" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to take in list of cv image objects and return a dataframe of images and epsilons to produce a four sided contour, along with mean gray values inside and outside that contour and strings of the scale values</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bulk_contours(img_list):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># initialize pytesseract location</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  pytesseract.pytesseract.tesseract_cmd <span class="op">=</span> <span class="vs">r'C:/Program Files/Tesseract-OCR/tesseract.exe'</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  img_post <span class="op">=</span> [] <span class="co"># initialize list to hold returned values from each image</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> image <span class="kw">in</span> img_list:</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># crop scale out of image to assist with contouring</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    crop_image <span class="op">=</span> image[<span class="dv">60</span>:<span class="dv">300</span>, <span class="dv">0</span>:<span class="dv">210</span>]</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">#generate four-sided contour</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    returned_eps, approx_contour <span class="op">=</span> approx_four_sides(crop_image)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(approx_contour) <span class="op">&lt;</span> <span class="dv">4</span>:</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>      image <span class="op">=</span> returned_eps <span class="op">=</span> approx_contour <span class="op">=</span> inner_gray <span class="op">=</span> outer_gray <span class="op">=</span> scale_lower <span class="op">=</span> scale_upper <span class="op">=</span> <span class="st">'NA'</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>      gray_crop_image <span class="op">=</span> cv2.cvtColor(crop_image, cv2.COLOR_BGR2GRAY) <span class="co"># grayscale</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>      <span class="co">## generate grayscale value in/out of region from approximated contour</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a mask to identify the region of interest</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>      mask <span class="op">=</span> np.zeros(gray_crop_image.shape[:<span class="dv">2</span>], np.uint8)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>      cv2.drawContours(mask, [approx_contour], <span class="dv">0</span>, <span class="dv">255</span>, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>      inner_gray <span class="op">=</span> cv2.mean(gray_crop_image, mask <span class="op">=</span> mask)[<span class="dv">0</span>] <span class="co">## mean values</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># invert the mask in order to pick the values in the other region</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>      newImage <span class="op">=</span> gray_crop_image[:,:]</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>      outer_mask <span class="op">=</span> cv2.bitwise_not(newImage, mask)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>      outer_gray <span class="op">=</span> cv2.mean(gray_crop_image, mask <span class="op">=</span> outer_mask)[<span class="dv">0</span>]</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>      <span class="co">## get scale</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>      <span class="co"># crop top and bottom of scale</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>      scale_upper_crop <span class="op">=</span> image[<span class="dv">30</span>:<span class="dv">60</span>, <span class="dv">190</span>:<span class="dv">240</span>]</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>      scale_lower_crop <span class="op">=</span> image[<span class="dv">260</span>:<span class="dv">280</span>, <span class="dv">170</span>:<span class="dv">240</span>]</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>      <span class="co"># translate image to strings</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>      scale_upper <span class="op">=</span> pytesseract.image_to_string(scale_upper_crop)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>      scale_lower <span class="op">=</span> pytesseract.image_to_string(scale_lower_crop)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    img_post.append([image, returned_eps, approx_contour, inner_gray, outer_gray, scale_lower.strip(), scale_upper.strip()])</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="co">#turn list img_post into a dataframe and return</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> pd.DataFrame(img_post, columns <span class="op">=</span> [<span class="st">"image"</span>, <span class="st">"eps_for4"</span>, <span class="st">"approx_contour"</span>, <span class="st">"inner_gray"</span>, <span class="st">"outer_gray"</span>, <span class="st">"lower_scale_val"</span>, <span class="st">"upper scale val"</span>])</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The summary of this sequence of functions on an image from an HIKMicro Camera can be seen here. Although the image is not clearly of a window and findContours() is picking up the sky as the object in the image, it is at least a demonstration of the function’s ability.</p>
+<div id="ee2f3e48" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="infrared%20insights_files/figure-html/cell-9-output-1.png" width="540" height="335" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                               image  eps_for4  \
+0  [[[65, 240, 225], [68, 238, 225], [62, 223, 21...      0.04   
+
+                                   approx_contour  inner_gray  outer_gray  \
+0  [[[0, 0]], [[0, 77]], [[209, 71]], [[209, 0]]]      59.107      75.927   
+
+  lower_scale_val upper scale val  
+0          &lt;-30.0            11.0  </code></pre>
+</div>
+</div>
+</section>
+<section id="recommendations" class="level2">
+<h2 class="anchored" data-anchor-id="recommendations">Recommendations</h2>
+<p>Clearly, there are plenty of next steps to be taken on this project before it would be a fully-functioning product. The first step would be to actually translate the grayscale values to temperature using the difference between the minimum and maximum values on the scale, and dividing by 255 to get the change in temperature in degrees Celcius per a one unit increase in grayscale value, and then multiplying this value by the inner_gray and outer_gray values to find the average temperature between regions of the image. Functionally, it would also be useful to implement some check for the values generated by Tesseract are reasonable temperature values. This may mean a flag for an unusually wide range in the scale values or some threshold of raw temperatures that the scale cannot exceed.</p>
+<p>There are also plenty of adjustments to be made to the existing code. Of utmost priority would be fixing the approx_four_sides() function to check if the vertices of the contour result in intersecting lines. ApproxContours returns an ordered list of points, so some calculation of the slopes between alternating points may be appropriate. This would return two lines between which the intercect could be calculated, and the function could continue looping through epsilon values until either the maximum epsilon is reached or the verticies do not result in intersecting lines. Even before this step, in the image pre-processing, we would also recommend an exploration into different methods of thresholding, such as Gaussian adaptive or mean adaptive, which account for images like the first sample image where the lighting across the image is not constant by allowing for different threshold values on each pixel based on the region around it. Using one of these methods may create a better outline of the shape of the window, regardless of any leakiness around it, in case of any unevenness in the image’s orientation. We would also encourage exploration of the pre-processing parameters such as the Gaussian blurring standard deviations and the thresholding value used to generate the initial contour.</p>
+<p>With additional images, we would also be interested in exploring methods of identifying leakiness that do not require as many images as a neural network. Some suggestions include sectioning some region around the window contour (such as a certain number of pixels around the contour) and taking the variability of temperature in that area. We would like to note that this should be taken as the variability in terms of the temperature of that region, not of the grayscale color value in order to gain this information on the same scale for all photos. Taking the variability of the grayscale value would result in images with a smaller temperature scale having higher variability than appropriate, since the change in temperature for an increase in grayscale units is not uniform across images. Alternatively, once the four-sided contours are fleshed out, there is potential information in the area difference between the original contour and its four-sided approximation. It is possible that a leaky window would have a larger area difference, if the leakiness manifests as a sort of intrusion outside of the window frame. We would look forward to exploring these suggestions with more appropriate images.</p>
+<p>Along with sample size, the limitation of this method that finds a contour and approximates a four-sided shape from it is that not being able to find a rectangular window when it is indeed in the photo might be a sign of leakiness. As the method stands now, this information would be censored, which is especially negative when the number of images to work with is already so small.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>While we did not reach a stage in which fully automated image processing was implemented, our methodologies developed and preliminary findings serve as a foundational piece to continue future research and development on. Due to time and data constraints we were unable to rigorously test and evaluate the efficacy of our process, however, going forward we recommend implementing the suggested improvements in the data collection process. We are optimistic that in continuing our work, these implementations will assist in the establishment of an automated detection process. As we look to the future, the lessons learned from this project will undoubtedly inform and improve ongoing efforts in the field of at-home thermal image analysis, driving us closer to our overall goal of making this technology a practical tool for homeowners to assess and enhance their window insulation efficiency effectively.</p>
+</section>
+<section id="acknowledgements" class="level2">
+<h2 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
+<p>Leah Boger and Brandon Nguy also contributed to a preliminary version of this report.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<p>“Glass and Thermal Insulation.” Saint-Gobain High Performing Glass Solutions. https://www.saint-gobain-glass.co.uk/en-gb/glass-and-thermal-insulation#:~:text= The%20normal%20emissivity%20%CE%B5n%20of,be%20as%20low%20as%200 .02.&amp;text=A%20surface%20will%20exchange%20heat,to%20its%20surroundings %20by%20radiation. Accessed 28 April 2024.</p>
+<p>“How Does Emissivity Affect Thermal Imaging.” Teledyne FLIR, 1 November 2021. https://www.flir.com/discover/professional-tools/how-does-emissivity-affect -thermal-imaging/. Accessed 28 April 2024.</p>
+<p>Khandelwal, Neetika. “Image Processing in Python: Algorithms, Tools, and Methods You Should Know.” neptune.ai, MLOps Blog, 25 August 2023, https://neptune.ai/blog/image-processing-python.</p>
+<p>Open Source Computer Vision. “Image Processing (imgproc module).” OpenCV Tutorials, 4.10.0.dev, https://docs.opencv.org/4.x/d7/da8/tutorial_table_of_content_imgproc.html.</p>
+<p>Tuychiev, Bex. “A Comprehensive Tutorial on Optical Character Recognition (OCR) in Python With Pytesseract.” DataCamp, April 2024, https://www.datacamp.com/tutorial/optical-character-recognition-ocr-in-python-with-pytesseract.</p>
+<p>Weil, Stephen. “Tesseract Open Source OCR Engine.” Github, https://github.com/tesseract-ocr/tesseract.</p>
+</section>
+<section id="appendix-a" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-a">Appendix A</h2>
+<section id="windows-thermal-imaging-procedure" class="level3 procedure">
+<h3 class="procedure anchored" data-anchor-id="windows-thermal-imaging-procedure">Windows Thermal Imaging Procedure</h3>
+<p>Hi all, we are very excited to collaborate with you on this thermal imaging project! In order to get the cleanest data possible, we have created a procedure to help streamline the picture taking process.</p>
+<p>Below is a procedure that we would appreciate you following, as well as a link to a google form that we would like you to fill out for each picture you take. While we’ve done our best to make this procedure accurate and easy to follow, we have much less hands-on time with these cameras than you, so please feel free to reach out with any questions or comments on how this could be smoother for you (our emails are on the top right corner).</p>
+<p>Important notes:</p>
+<ul>
+<li><p>Only take pictures of windows</p>
+<ul>
+<li>Try to take pictures of windows from as many different buildings as possible (on and off campus). We only need one picture of one window for each building</li>
+</ul></li>
+<li><p>Only take pictures of windows that fit fully in frame when standing 1-6 ½ feet away</p></li>
+<li><p>Take picture as straight-on as possible (try to avoid taking from an angle)</p></li>
+<li><p>Only take pictures when outside temperature is above 14 ℉</p>
+<ul>
+<li>The camera will only read surface temperatures down to -4 ℉, which will be an issue if the photos are not sufficiently detailed (you will notice a large part of the photo that is one color, even though you believe it should be many different colors)</li>
+</ul></li>
+<li><p>Only take pictures from outside</p></li>
+</ul>
+<p>Camera Set-Up</p>
+<p><img src="camsettings1.png" class="img-fluid" width="292"></p>
+<ul>
+<li><p>Meas. Range: put in Auto Switch mode</p></li>
+<li><p>Distance: estimate distance between you and your target and enter here</p></li>
+<li><p>Rule: select Hot Spot, Cold Spot</p></li>
+<li><p>Unit: Fahrenheit</p></li>
+</ul>
+<p>Procedure:</p>
+<ol type="1">
+<li><img src="camsettings2.png" class="img-fluid" width="259"></li>
+<li>Fill out google form with proper information (fill out immediately, as a lot of the information is time sensitive)</li>
+</ol>
+<p>Google Form</p>
+<p>Click the link below to fill out a form for each picture you take. Below are detailed notes for some of the pieces of information we are asking for, but feel free to reach out with any questions at all.</p>
+<ul>
+<li><p>Longitude/Latitude Apple maps makes this easy, simply hold down on the location you are at until a pin is dropped. Click the image that pops up, and scroll down to details. Under coordinates, longitude and latitude should be displayed. Please try to be as accurate as possible here</p></li>
+<li><p>Ordinal Direction Please record the direction that the window is FACING. Pick the most accurate answer possible. For example, for the window below, you would record “West” as the direction the window is facing</p>
+<p><img src="images/Screenshot%202024-09-14%20152244.png" class="img-fluid" width="435"></p></li>
+</ul>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
