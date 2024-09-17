@@ -7,7 +7,6 @@ author:
 format: pdf
 editor: visual
 jupyter: python3
-
 ---
 
 ## Introduction
@@ -226,7 +225,7 @@ In theory, with this function to generate an approximated contour for each image
 
 Also in line with this goal, the grayscale values still need to be translated to temperature values.In order to maximize the amount of information we could get from each image, the cameras given to the researchers were set to a variable scale. This means that the RGB scale is the same for every image, but the temperatures it represents change from image to image. However, the HIKMicro E1L camera does not store any form of metadata, only the jpeg. Along with our very small sample of images, this means that to translate the RGB to a temperature, we must use an existing optical character recognition (OCR) package to scrape the values off of the image. This process is made available due to the constant location of the scale on each image. If the scale location was variable, this method would have to be adapted. Using Tesseract and their Python driver pyTesseract, either end of the scale can be pulled out and run through image_to_string() to return a string of characters.
 
-The complication of some of these images is that the coolest temperature is lower than the camera can register, which generally happens when the camera captures part of the sky or something much further away than the focus of the image. These values will be imputed to -30, which is the minimum temperature the camera can register. To complete the scale to temperature translation, we grayscale the image. By grayscaling, each pixel value is in a single dimension, a value from 0 to 1 which progressively gets darker, to represent the one dimension variable we are trying to measure, temperature, as opposed to a three dimension RGB value. The following function takes in a list of OpenCV image objects and extracts all of this information into a dataframe seven columns: the original image, epsilon to generate a four-sided contour, the approximated four-sided contour, the mean grayscale value inside the window region, the mean grayscale value outside the window region, the bottom scale value, and the top scale value.
+The complication of some of these images is that the coolest temperature is lower than the camera can register, which generally happens when the camera captures part of the sky or something much further away than the focus of the image. These values will be imputed to -30, which is the minimum temperature the camera can register. To complete the scale to temperature translation, we grayscale the image. By grayscaling, each pixel value is in a single dimension, a value from 0 to 255 which progressively gets darker, to represent the one dimension variable we are trying to measure, temperature, as opposed to a three dimension RGB value. The following function takes in a list of OpenCV image objects and extracts all of this information into a dataframe seven columns: the original image, epsilon to generate a four-sided contour, the approximated four-sided contour, the mean grayscale value inside the window region, the mean grayscale value outside the window region, the bottom scale value, and the top scale value.
 
 ```{python}
 
@@ -365,7 +364,7 @@ Important notes:
 
 -   Only take pictures of windows that fit fully in frame when standing 1-6 ½ feet away
 
--    Take picture as straight-on as possible (try to avoid taking from an angle)
+-   Take picture as straight-on as possible (try to avoid taking from an angle)
 
 -   Only take pictures when outside temperature is above 14 ℉
 
