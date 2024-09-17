@@ -307,12 +307,22 @@ plt.imshow(cont)
 plt.axis('off')
 plt.show()
 
+print("Data Sample")
 with pd.option_context('display.max_rows', None,
                        'display.max_columns', None,
                        'display.precision', 3,
                        ):
     print(bulk_contours([img]))
-    
+  
+print("\n Description of DataTypes")
+demo_df = bulk_contours([img])
+
+
+
+
+demo_df.info() #describe datatypes
+#demo_df.describe() #describe data 
+
     
 ```
 
@@ -329,6 +339,8 @@ Along with sample size, the limitation of this method that finds a contour and a
 ## Conclusion
 
 While we did not reach a stage in which fully automated image processing was implemented, our methodologies developed and preliminary findings serve as a foundational piece to continue future research and development on. Due to time and data constraints we were unable to rigorously test and evaluate the efficacy of our process, however, going forward we recommend implementing the suggested improvements in the data collection process. We are optimistic that in continuing our work, these implementations will assist in the establishment of an automated detection process. As we look to the future, the lessons learned from this project will undoubtedly inform and improve ongoing efforts in the field of at-home thermal image analysis, driving us closer to our overall goal of making this technology a practical tool for homeowners to assess and enhance their window insulation efficiency effectively.
+
+{{< pagebreak >}}
 
 ## Acknowledgements
 
@@ -347,6 +359,8 @@ Open Source Computer Vision. “Image Processing (imgproc module).” OpenCV Tut
 Tuychiev, Bex. "A Comprehensive Tutorial on Optical Character Recognition (OCR) in Python With Pytesseract." DataCamp, April 2024, https://www.datacamp.com/tutorial/optical-character-recognition-ocr-in-python-with-pytesseract.
 
 Weil, Stephen. "Tesseract Open Source OCR Engine." Github, https://github.com/tesseract-ocr/tesseract.
+
+{{< pagebreak >}}
 
 ## Appendix A
 
