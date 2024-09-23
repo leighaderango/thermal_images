@@ -84,6 +84,7 @@ cv2.drawContours(outline_img, [largest_black_contour], 0, (0, 255, 0), 2)
 
 # translate to RGB to show
 outline = cv2.cvtColor(outline_img, cv2.COLOR_BGR2RGB)
+
 ```
 
 ```{python imgproc}
@@ -225,11 +226,11 @@ In theory, with this function to generate an approximated contour for each image
 
 Also in line with this goal, the grayscale values still need to be translated to temperature values.In order to maximize the amount of information we could get from each image, the cameras given to the researchers were set to a variable scale. This means that the RGB scale is the same for every image, but the temperatures it represents change from image to image. However, the HIKMicro E1L camera does not store any form of metadata, only the jpeg. Along with our very small sample of images, this means that to translate the RGB to a temperature, we must use an existing optical character recognition (OCR) package to scrape the values off of the image. This process is made available due to the constant location of the scale on each image. If the scale location was variable, this method would have to be adapted. Using Tesseract and their Python driver pyTesseract, either end of the scale can be pulled out and run through image_to_string() to return a string of characters.
 
-The complication of some of these images is that the coolest temperature is lower than the camera can register, which generally happens when the camera captures part of the sky or something much further away than the focus of the image. These values will be imputed to -30, which is the minimum temperature the camera can register. To complete the scale to temperature translation, we grayscale the image. By grayscaling, each pixel value is in a single dimension, a value from 0 to 255 which progressively gets darker, to represent the one dimension variable we are trying to measure, temperature, as opposed to a three dimension RGB value. The following function takes in a list of OpenCV image objects and extracts all of this information into a dataframe seven columns: the original image, epsilon to generate a four-sided contour, the approximated four-sided contour, the mean grayscale value inside the window region, the mean grayscale value outside the window region, the bottom scale value, and the top scale value.
+The complication of some of these images is that the coolest temperature is lower than the camera can register, which generally happens when the camera captures part of the sky or something much further away than the focus of the image. These values will be imputed to -20 C, which is the minimum temperature in Celcius the camera can register. Though the researchers were instructed to set the camera scale to be in Fahrenheit, most of the images received (including the sample image below), were in Celcius, so we will continue with Celcius for the time being.  To complete the scale to temperature translation, we grayscale the image. By grayscaling, each pixel value is in a single dimension, a value from 0 to 255 which progressively gets darker, to represent the one dimension variable we are trying to measure, temperature, as opposed to a three dimension RGB value. This allows for the translation of grayscale to temperature values using a simple linear expression: $temperature = (grayscale val/ 255)*(upper scale limit - lower scale limit) + lower scale limit$. This involves dividing the grayscale value of the region by 255 in order to find the scale point of interest, then multiplying by the range of the scale in order to get the change in temperature in degrees per a one unit increase in grayscale value, and finally adding the lower scale value to put the temperature in the context of the image. The following function takes in a list of OpenCV image objects and extracts all of this information into a dataframe with nine columns: the original image object, epsilon to generate a four-sided contour, the approximated four-sided contour object, the mean grayscale value inside the window region, the temperature of this inner region, the mean grayscale value outside the window region, the temperature of this outer the bottom scale value, and the top scale value.
 
 ```{python}
 
-# function to take in list of cv image objects and return a dataframe of images and epsilons to produce a four sided contour, along with mean gray values inside and outside that contour and strings of the scale values
+# function to take in list of cv image objects and return a dataframe of images and epsilons to produce a four sided contour, along with mean temperatures inside and outside that contour, along with floats of the scale values
 
 def bulk_contours(img_list):
   
@@ -245,7 +246,7 @@ def bulk_contours(img_list):
     #generate four-sided contour
     returned_eps, approx_contour = approx_four_sides(crop_image)
       
-    if len(approx_contour) < 4:
+    if len(approx_contour) > 4:
       image = returned_eps = approx_contour = inner_gray = outer_gray = 'NA'
       scale_lower = scale_upper = 'NA'
       
@@ -272,11 +273,29 @@ def bulk_contours(img_list):
       scale_upper = pytesseract.image_to_string(scale_upper_crop)
       scale_lower = pytesseract.image_to_string(scale_lower_crop)
       
-
-    img_post.append([image, returned_eps, approx_contour, inner_gray, outer_gray, scale_lower.strip(), scale_upper.strip()])
+      try: 
+        scale_upper_numeric = float(scale_upper.strip())
+      except:
+        scale_upper_numeric = 1000
+          # if upper string is not able to be converted, impute unreasonable number
+      try:
+        scale_lower_numeric = float(scale_lower.strip())
+      except:
+        scale_lower_numeric = -20
+          # if lower string is not able to be converted, impute lowest camera val
+          
+      scale_diff = scale_upper_numeric - scale_lower_numeric
+      
+      inner_temp = (inner_gray/255)*scale_diff + scale_lower_numeric
+      outer_temp = (outer_gray/255)*scale_diff + scale_lower_numeric
+      # temp = prop/255*scale range + lower end of scale
+      
+      
+      
+    img_post.append([image, returned_eps, approx_contour, inner_gray, inner_temp, outer_gray, outer_temp, scale_lower_numeric, scale_upper_numeric])
     
   #turn list img_post into a dataframe and return
-  df = pd.DataFrame(img_post, columns = ["image", "eps_for4", "approx_contour", "inner_gray", "outer_gray", "lower_scale_val", "upper scale val"])
+  df = pd.DataFrame(img_post, columns = ["image", "eps_for4", "approx_contour", "inner_gray", "inner_temp", "outer_gray", "outer_temp", "lower_scale_val", "upper_scale_val"])
   
   return df
     
@@ -299,11 +318,13 @@ four_img = img_crop.copy()
 cv2.drawContours(four_img, [contour], 0, (0, 255, 0), 2)
 cont = cv2.cvtColor(four_img, cv2.COLOR_BGR2RGB)
 
+
+
 plt.subplot(1, 2, 1)
 plt.imshow(img)
 plt.axis('off')
 plt.subplot(1, 2, 2)
-plt.imshow(cont)
+plt.imshow(cont, cmap = 'gray', vmin = 0, vmax = 255)
 plt.axis('off')
 plt.show()
 
@@ -328,9 +349,11 @@ demo_df.info() #describe datatypes
 
 ## Recommendations
 
-Clearly, there are plenty of next steps to be taken on this project before it would be a fully-functioning product. The first step would be to actually translate the grayscale values to temperature using the difference between the minimum and maximum values on the scale, and dividing by 255 to get the change in temperature in degrees Celcius per a one unit increase in grayscale value, and then multiplying this value by the inner_gray and outer_gray values to find the average temperature between regions of the image. Functionally, it would also be useful to implement some check for the values generated by Tesseract are reasonable temperature values. This may mean a flag for an unusually wide range in the scale values or some threshold of raw temperatures that the scale cannot exceed.
+This project is a work in progress and has much to be done before it could serve as a fully functioning product.
 
-There are also plenty of adjustments to be made to the existing code. Of utmost priority would be fixing the approx_four_sides() function to check if the vertices of the contour result in intersecting lines. ApproxContours returns an ordered list of points, so some calculation of the slopes between alternating points may be appropriate. This would return two lines between which the intercect could be calculated, and the function could continue looping through epsilon values until either the maximum epsilon is reached or the verticies do not result in intersecting lines. Even before this step, in the image pre-processing, we would also recommend an exploration into different methods of thresholding, such as Gaussian adaptive or mean adaptive, which account for images like the first sample image where the lighting across the image is not constant by allowing for different threshold values on each pixel based on the region around it. Using one of these methods may create a better outline of the shape of the window, regardless of any leakiness around it, in case of any unevenness in the image's orientation. We would also encourage exploration of the pre-processing parameters such as the Gaussian blurring standard deviations and the thresholding value used to generate the initial contour.
+Firstly, there are plenty of adjustments to be made to the existing code. Of utmost priority would be fixing the approx_four_sides() function to check if the vertices of the contour result in intersecting lines. ApproxContours returns an ordered list of points, so some calculation of the slopes between alternating points may be appropriate. This would return two lines between which the intercect could be calculated, and the function could continue looping through epsilon values until either the maximum epsilon is reached or the verticies do not result in intersecting lines. Even before this step, in the image pre-processing, we would also recommend an exploration into different methods of thresholding, such as Gaussian adaptive or mean adaptive, which account for images like the first sample image where the lighting across the image is not constant by allowing for different threshold values on each pixel based on the region around it. Using one of these methods may create a better outline of the shape of the window, regardless of any leakiness around it, in case of any unevenness in the image's orientation. We would also encourage exploration of the pre-processing parameters such as the Gaussian blurring standard deviations and the thresholding value used to generate the initial contour.
+
+Additionally, a method to adjust the temperature methods in the bulk_contours() function based on the scale (Fahrenheit or Celcius) of the image would contribute to the quality of data produced, and allow some flexibility in the types of images the function can receive. In line with this goal of data quality, it would also be useful to implement some check for the values generated by Tesseract are reasonable temperature values. This may mean a flag for an unusually wide range in the scale values or some threshold of raw temperatures that the scale cannot exceed. 
 
 With additional images, we would also be interested in exploring methods of identifying leakiness that do not require as many images as a neural network. Some suggestions include sectioning some region around the window contour (such as a certain number of pixels around the contour) and taking the variability of temperature in that area. We would like to note that this should be taken as the variability in terms of the temperature of that region, not of the grayscale color value in order to gain this information on the same scale for all photos. Taking the variability of the grayscale value would result in images with a smaller temperature scale having higher variability than appropriate, since the change in temperature for an increase in grayscale units is not uniform across images. Alternatively, once the four-sided contours are fleshed out, there is potential information in the area difference between the original contour and its four-sided approximation. It is possible that a leaky window would have a larger area difference, if the leakiness manifests as a sort of intrusion outside of the window frame. We would look forward to exploring these suggestions with more appropriate images.
 
@@ -338,7 +361,9 @@ Along with sample size, the limitation of this method that finds a contour and a
 
 ## Conclusion
 
-While we did not reach a stage in which fully automated image processing was implemented, our methodologies developed and preliminary findings serve as a foundational piece to continue future research and development on. Due to time and data constraints we were unable to rigorously test and evaluate the efficacy of our process, however, going forward we recommend implementing the suggested improvements in the data collection process. We are optimistic that in continuing our work, these implementations will assist in the establishment of an automated detection process. As we look to the future, the lessons learned from this project will undoubtedly inform and improve ongoing efforts in the field of at-home thermal image analysis, driving us closer to our overall goal of making this technology a practical tool for homeowners to assess and enhance their window insulation efficiency effectively.
+While we did not reach a stage in which fully automated image processing was implemented, our methodologies developed and preliminary findings serve as a foundational piece to continue future research and development on. Due to time and data constraints we were unable to rigorously test and evaluate the efficacy of our process, however, going forward we recommend implementing the suggested improvements in the data collection process. We are optimistic that in continuing our work, these implementations will assist in the establishment of an automated 'leaky window' detection process. As we look to the future, the lessons learned from this project will undoubtedly inform and improve ongoing efforts in the field of at-home thermal image analysis, driving us closer to our overall goal of making this technology a practical tool for homeowners to assess and enhance their window insulation efficiency effectively.
+
+
 
 {{< pagebreak >}}
 
