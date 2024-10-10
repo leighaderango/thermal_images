@@ -69,8 +69,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="infrared insights_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="infrared insights_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<link rel="stylesheet" href="styles.css">
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 </head>
 
 <body class="fullcontent">
@@ -123,15 +151,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="data-analysis-and-methodology" class="level2">
 <h2 class="anchored" data-anchor-id="data-analysis-and-methodology">Data Analysis and Methodology</h2>
-<p>We began the project by attempting to efficiently familiarize ourselves with image processing techniques so that we could give the field researchers their procedure as soon as possible, in order to facilitate as much data collection as possible. The most important aspect of processing in thiss case, given the unavailability of computer vision for analysis, is getting the most straightforward and uniform images as possible. This will facilitate batch processing and reproducibility of results from one image to another. The field researchers were instructed to take images as straight on as possible and take only images of windows that would fit in the entire frame from between 1 to 6 feet away, as this was the distance recommended by the camera manufacturers for optimizing the information the camera could capture. A full copy of the document given to the field researchers is attached as Appendix A. It should be noted that we did not obtain a single image (out of about 70 received) that met the requirements listed in the procedure.</p>
+<p>We began the project by attempting to efficiently familiarize ourselves with image processing techniques so that we could give the field researchers their procedure as soon as possible, in order to facilitate as much data collection as possible. The most important aspect of processing in thiss case, given the unavailability of computer vision for analysis, is getting the most straightforward and uniform images as possible. This will facilitate batch processing and reproducibility of results from one image to another. The field researchers were instructed to take images as straight on as possible and take only images of windows that would fit in the entire frame from between 1 to 6 feet away, as this was the distance recommended by the camera manufacturers for optimizing the information the camera could capture. A full copy of the document given to the field researchers is attached as Appendix A. It should be noted that we did not obtain a single image (out of about 70 received) that met the requirements listed in the procedure. The images used in this report were obtained outside of the original field research.</p>
 <p>Image processing is split into three sequential procedures: pre-processing, processing, and computer vision. The OpenCV package in Python provides a wide range of image processing functionality and was used for the entirety of the following analysis. Image pre-processing involves reading in and cleaning the data, along with performing any necessary adjustments to make the images more conducive to later analysis. For us, image pre-processing included Gaussian blurring and contrast enhancing, before thresholding to complete the binarization of the image necessary for finding the shape of the window, called a contour. These are common pre-processing techniques, which were chosen after evaluating a variety of possibilities and what they may contribute to identifying regions of a window (Khandelwal). Gaussian blurring performs noise reduction by establishing a kernel and then applying a certain number of standard deviations of the kernel value to the pixel at the center of that kernel. Larger standard deviations result in blurrier images. This parameter could be tuned if more data was acquired. To improve contrast of the image, histogram equalization was used. Histogram equalization takes the range of pixel intensity values of the existing image and spreads out the most frequent values to create greater contrast in the image. Thresholding is used to help identify an object and separate it from the background of an image, and works by selecting a specific pixel intensity value. Any pixel with a value less than the threshold selected is set to zero, or white, and any pixel greater is set to the maximum value chosen (often 255, or black). In essence, this technique returns a flattened image where the object of interest is one color and the background is the other. This value is another processing parameter which could be tuned given more images.</p>
-<p>The next step is image processing, which performs analysis but does not necessarily generate knowledge about the image, as a neural net may be able to do. Using simple image processing techniques and OpenCV, the values of a thermal image can be used to identify the region of the window in the image, also called the “contour”. Once the region of the window is identified, we examine different methods that may begin to identify indicators of leakiness. FindContours() identifies the boundary of points between the black and white regions identified in pre-processing. This process can be visualized with <a href="#fig-imgproc" class="quarto-xref">Figure&nbsp;1</a>, which shows our test image at four stages: raw, gray-scaled and blurred, thresholded, and finally with the largest contour overlaid on the raw image.</p>
+<p>The next step is image processing, which performs analysis but does not necessarily generate insight about the image, as a neural net may be able to do. Using simple image processing techniques and OpenCV, the values of a thermal image can be used to identify the region of the window in the image, also called the “contour”. Once the region of the window is identified, we examine different methods that may begin to identify indicators of leakiness. FindContours() identifies the boundary of points between the black and white regions identified in pre-processing. This process can be visualized with <a href="#fig-imgproc" class="quarto-xref">Figure&nbsp;1</a>, which shows our test image at four stages: raw, gray-scaled and blurred, thresholded, and finally with the largest contour overlaid on the raw image.</p>
 <div id="cell-fig-imgproc" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div id="fig-imgproc" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-imgproc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="infrared%20insights_files/figure-html/fig-imgproc-output-1.png" width="540" height="106" class="figure-img">
+<img src="infrared%20insights_files/figure-html/fig-imgproc-output-1.png" width="540" height="149" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-imgproc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: Progression of Image Processing
@@ -146,7 +174,7 @@ Figure&nbsp;1: Progression of Image Processing
 <div id="fig-contourprog" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-contourprog-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="infrared%20insights_files/figure-html/fig-contourprog-output-1.png" width="540" height="201" class="figure-img">
+<img src="infrared%20insights_files/figure-html/fig-contourprog-output-1.png" width="540" height="290" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-contourprog-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2: Result of Contour Approximation on Region Definition
@@ -155,56 +183,64 @@ Figure&nbsp;2: Result of Contour Approximation on Region Definition
 </div>
 </div>
 </div>
-<p>Using this framework, we created a series of scripts to process a collection of images at one time. Knowing that our end goal would be to make this process of classifying a window as ‘leaky’ or ‘not leaky’ as autonomous as possible, scripting the image processing steps is the first step towards being able to gain enough data to utilize a neural net or other image classification model. The first challenge to this process is generating the contours for each image. Due to the binarization of the image before identifying the contour, if the pane of a window is not uniformly colored, the contour may not identify the whole window based on the threshold values. An example of this can be seen in the sample image used above, where the contour indents into the middle of the window because of the angle of the image. To account for this, we attempt to loop through increasing values of epsilon until cv2.findContours() returns a shape with four edges, in order to best approximate rectangular windows. This does render the analysis inadequate for non-rectangular windows, though future work may allow for a larger sample size and more room to account for a variety of window shapes. If the loop does not find a four-sided contour by the time epsilon reaches 0.15, it returns an error message with a list of the number of edges it found for each. The function returns a list of the identified epsilon value and the contour object it corresponds to. The issue with this method of selecting a contour can be seen in <a href="#fig-contourfour" class="quarto-xref">Figure&nbsp;3</a>, which shows that although the contour is defined by four edges, those four edges do not form a rectangle. Discussion on solutions to this will be held until the end.</p>
-<div id="68994c1c" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to read an opencv format image and return a value of epsilon that produces an approximated 4-edge contour</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> approx_four_sides(image):</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># put image into thresholded form</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  imgRGB <span class="op">=</span> cv2.cvtColor(image, cv2.COLOR_BGR2RGB) <span class="co"># translate from CV to RGB format </span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  imgGray <span class="op">=</span> cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) <span class="co"># make image Grayscale</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  imgBlur <span class="op">=</span> cv2.GaussianBlur(imgGray,(<span class="dv">7</span>,<span class="dv">7</span>),<span class="dv">1</span>) <span class="co"># apply Gaussian Blur</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  imgEqualized <span class="op">=</span> cv2.equalizeHist(imgBlur) <span class="co"># increase contrast</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  imgBlurer <span class="op">=</span> cv2.GaussianBlur(imgEqualized,(<span class="dv">15</span>,<span class="dv">15</span>),<span class="dv">1</span>) <span class="co"># apply stronger Gaussian Blur</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  _, threshold <span class="op">=</span> cv2.threshold(imgBlurer, <span class="dv">110</span>, <span class="dv">270</span>, cv2.THRESH_BINARY) <span class="co"># threshold</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  threshold_inverted <span class="op">=</span> cv2.bitwise_not(threshold) <span class="co"># invert (contours looks for white space)</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate original contour</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  contours, _ <span class="op">=</span> cv2.findContours(threshold_inverted, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># filter out contours based on area to get the largest</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  orig_contour <span class="op">=</span> <span class="bu">max</span>(contours, key<span class="op">=</span>cv2.contourArea)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># initialize</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  eps <span class="op">=</span> <span class="fl">0.01</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  epsilon <span class="op">=</span> eps <span class="op">*</span> cv2.arcLength(orig_contour, <span class="va">True</span>)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  approx <span class="op">=</span> cv2.approxPolyDP(orig_contour, epsilon, <span class="va">True</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  len_vec <span class="op">=</span> []</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  len_vec.append(<span class="bu">len</span>(approx))</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="bu">len</span>(approx) <span class="op">!=</span> <span class="dv">4</span>:</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># for each value of epsilon from (0.01 - 0.15 by 0.005)</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    eps <span class="op">=</span> eps <span class="op">+</span> <span class="fl">0.005</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">#generate approximation of original contour</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    epsilon <span class="op">=</span> eps <span class="op">*</span> cv2.arcLength(orig_contour, <span class="va">True</span>)</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    approx <span class="op">=</span> cv2.approxPolyDP(orig_contour, epsilon, <span class="va">True</span>)</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    len_vec.append(<span class="bu">len</span>(approx))</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if num edges is 4 (rectangle)</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> eps <span class="op">&gt;=</span> <span class="fl">0.15</span>:</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>      msg <span class="op">=</span> <span class="st">'No four sided figure could be identified, search went: </span><span class="sc">{}</span><span class="st">'</span>.<span class="bu">format</span>(len_vec) </span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> [msg, <span class="dv">0</span>]</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [eps, approx]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Using this framework, we created a series of scripts to process a collection of images at one time. Knowing that our end goal would be to make this process of classifying a window as ‘leaky’ or ‘not leaky’ as autonomous as possible, scripting the image processing steps is the first step towards being able to gain enough data to utilize a neural net or other image classification model. We begin with a function to approximate a four sided contour in the input image, approx_four_sides(). To account for potential temperature variation due to leakiness or an off-axis photo, the function loops through increasing values of epsilon until the returned shape has four verticies, in order to best approximate rectangular windows. This does render the analysis inadequate for non-rectangular windows, though future work may allow for a larger sample size and more room to account for a variety of window shapes. If the loop does not find a four-sided contour by the time epsilon reaches 0.15, it returns an error message with a list of the number of edges it found for each. The function returns a list of the identified epsilon value and the contour object it corresponds to.</p>
+<div id="eef2d173" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to read a (ideally cropped, but handles all images) opencv format image and return a value of epsilon</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#that produces an approximated 4-edge contour</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> approx_four_sides(image):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># put image into thresholded form</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  imgRGB <span class="op">=</span> cv2.cvtColor(image, cv2.COLOR_BGR2RGB) </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># translate from CV to RGB format </span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  imgGray <span class="op">=</span> cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make image Grayscale</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  imgBlur <span class="op">=</span> cv2.GaussianBlur(imgGray,(<span class="dv">7</span>,<span class="dv">7</span>),<span class="dv">1</span>) </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># apply Gaussian Blur</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  imgEqualized <span class="op">=</span> cv2.equalizeHist(imgBlur) </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># increase contrast</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  imgBlurer <span class="op">=</span> cv2.GaussianBlur(imgEqualized,(<span class="dv">15</span>,<span class="dv">15</span>),<span class="dv">1</span>) </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># apply stronger Gaussian Blur</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># threshold</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  _, threshold <span class="op">=</span> cv2.threshold(imgBlurer, <span class="dv">110</span>, <span class="dv">270</span>, cv2.THRESH_BINARY) </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  threshold_inverted <span class="op">=</span> cv2.bitwise_not(threshold) </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># invert (contours looks for white space)</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate original contour</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  contours, _ <span class="op">=</span> cv2.findContours(threshold_inverted, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># filter out contours based on area to get the largest</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  orig_contour <span class="op">=</span> <span class="bu">max</span>(contours, key<span class="op">=</span>cv2.contourArea)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># initialize</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  eps <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  epsilon <span class="op">=</span> eps <span class="op">*</span> cv2.arcLength(orig_contour, <span class="va">True</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  approx <span class="op">=</span> cv2.approxPolyDP(orig_contour, epsilon, <span class="va">True</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  len_vec <span class="op">=</span> []</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  len_vec.append(<span class="bu">len</span>(approx))</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="bu">len</span>(approx) <span class="op">!=</span> <span class="dv">4</span>:</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># for each value of epsilon from (0.01 - 0.15 by 0.005)</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    eps <span class="op">=</span> eps <span class="op">+</span> <span class="fl">0.005</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="co">#generate approximation of original contour</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    epsilon <span class="op">=</span> eps <span class="op">*</span> cv2.arcLength(orig_contour, <span class="va">True</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    approx <span class="op">=</span> cv2.approxPolyDP(orig_contour, epsilon, <span class="va">True</span>)</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    len_vec.append(<span class="bu">len</span>(approx))</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if num edges is 4 (rectangle)</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> eps <span class="op">&gt;=</span> <span class="fl">0.15</span>:</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>      msg <span class="op">=</span> <span class="st">'No four sided figure could be identified, search went: </span><span class="sc">{}</span><span class="st">'</span>.<span class="bu">format</span>(len_vec) </span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> [msg, <span class="dv">0</span>]</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [eps, approx]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="cell-fig-contourfour" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div id="fig-contourfour" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-contourfour-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="infrared%20insights_files/figure-html/fig-contourfour-output-1.png" width="500" height="389" class="figure-img">
+<img src="infrared%20insights_files/figure-html/fig-contourfour-output-1.png" width="343" height="389" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-contourfour-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3: Resulting Four Sided Contour
@@ -214,10 +250,10 @@ Figure&nbsp;3: Resulting Four Sided Contour
 </div>
 </div>
 <p>In theory, with this function to generate an approximated contour for each image, we can take a list of images, generate their contours, and calculate the mean grayscale value in the region inside and outside of the window, which can be used in future temperature calculations. With the end goal of being able to evaluate “leakage” of a window, these grayscale values may serve as a reference point for that evaluation.</p>
-<p>Also in line with this goal, the grayscale values still need to be translated to temperature values.In order to maximize the amount of information we could get from each image, the cameras given to the researchers were set to a variable scale. This means that the RGB scale is the same for every image, but the temperatures it represents change from image to image. However, the HIKMicro E1L camera does not store any form of metadata, only the jpeg. Along with our very small sample of images, this means that to translate the RGB to a temperature, we must use an existing optical character recognition (OCR) package to scrape the values off of the image. This process is made available due to the constant location of the scale on each image. If the scale location was variable, this method would have to be adapted. Using Tesseract and their Python driver pyTesseract, either end of the scale can be pulled out and run through image_to_string() to return a string of characters.</p>
-<p>The complication of some of these images is that the coolest temperature is lower than the camera can register, which generally happens when the camera captures part of the sky or something much further away than the focus of the image. These values will be imputed to -30, which is the minimum temperature the camera can register. To complete the scale to temperature translation, we grayscale the image. By grayscaling, each pixel value is in a single dimension, a value from 0 to 1 which progressively gets darker, to represent the one dimension variable we are trying to measure, temperature, as opposed to a three dimension RGB value. The following function takes in a list of OpenCV image objects and extracts all of this information into a dataframe seven columns: the original image, epsilon to generate a four-sided contour, the approximated four-sided contour, the mean grayscale value inside the window region, the mean grayscale value outside the window region, the bottom scale value, and the top scale value.</p>
-<div id="c40c2aee" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to take in list of cv image objects and return a dataframe of images and epsilons to produce a four sided contour, along with mean gray values inside and outside that contour and strings of the scale values</span></span>
+<p>Also in line with this goal, the grayscale values still need to be translated to temperature values. In order to maximize the amount of information we could get from each image, the cameras given to the researchers were set to a variable scale. This means that the RGB scale is the same for every image, but the temperatures it represents change from image to image. However, the HIKMicro E1L camera does not store any form of metadata, only the jpeg. Along with our very small sample of images, this means that to translate the RGB to a temperature, we must use an existing optical character recognition (OCR) package to scrape the values off of the image. This process is made available due to the constant location of the scale on each image. If the scale location was variable, this method would have to be adapted. Using Tesseract and their Python driver pyTesseract, either end of the scale can be pulled out and run through image_to_string() to return a string of characters.</p>
+<p>The complication of some of these images is that the coolest temperature is lower than the camera can register, which generally happens when the camera captures part of the sky or something much further away than the focus of the image. These values will be imputed to -20 C, which is the minimum temperature in Celcius the camera can register. Though the researchers were instructed to set the camera scale to be in Fahrenheit, most of the original images received were in Celcius, so we will continue with Celcius for the time being. To complete the scale to temperature translation, we grayscale the image. By grayscaling, each pixel value is in a single dimension, a value from 0 to 255 which progressively gets darker, to represent the one dimension variable we are trying to measure, temperature, as opposed to a three dimension RGB value. This allows for the translation of grayscale to temperature values using a simple linear expression: <span class="math inline">\(temperature = (grayscale val/ 255)*(upper scale limit - lower scale limit) + lower scale limit\)</span>. This involves dividing the grayscale value of the region by 255 in order to find the scale point of interest, then multiplying by the range of the scale in order to get the change in temperature in degrees per a one unit increase in grayscale value, and finally adding the lower scale value to put the temperature in the context of the image. The following function takes in a list of OpenCV image objects and extracts all of this information into a dataframe with nine columns: the original image object, epsilon to generate a four-sided contour, the approximated four-sided contour object, the mean grayscale value inside the window region, the temperature of this inner region, the mean grayscale value outside the window region, the temperature of this outer the bottom scale value, and the top scale value.</p>
+<div id="8914adf5" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to take in list of cv image objects and return a dataframe of [the uncropped image object, epsilon to generate a four-sided contour,  the four sided contour approximation, the average grayscale value of the (inner/outer) region, the temperature value of the (inner/outer) region, and the lower and upper bounds of the temperature]</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bulk_contours(img_list):</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  </span>
@@ -229,79 +265,134 @@ Figure&nbsp;3: Resulting Four Sided Contour
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> image <span class="kw">in</span> img_list:</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># crop scale out of image to assist with contouring</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    crop_image <span class="op">=</span> image[<span class="dv">60</span>:<span class="dv">300</span>, <span class="dv">0</span>:<span class="dv">210</span>]</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">#generate four-sided contour</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    returned_eps, approx_contour <span class="op">=</span> approx_four_sides(crop_image)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(approx_contour) <span class="op">&lt;</span> <span class="dv">4</span>:</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>      image <span class="op">=</span> returned_eps <span class="op">=</span> approx_contour <span class="op">=</span> inner_gray <span class="op">=</span> outer_gray <span class="op">=</span> scale_lower <span class="op">=</span> scale_upper <span class="op">=</span> <span class="st">'NA'</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>      gray_crop_image <span class="op">=</span> cv2.cvtColor(crop_image, cv2.COLOR_BGR2GRAY) <span class="co"># grayscale</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    gray_image <span class="op">=</span> cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">#generate four-sided contour</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    returned_eps, approx_contour <span class="op">=</span> approx_four_sides(crop_image)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(approx_contour) <span class="op">!=</span> <span class="dv">4</span>:</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      image <span class="op">=</span> returned_eps <span class="op">=</span> approx_contour <span class="op">=</span> inner_gray <span class="op">=</span> outer_gray <span class="op">=</span> <span class="st">'NA'</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>      scale_lower <span class="op">=</span> scale_upper <span class="op">=</span> <span class="st">'NA'</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>      <span class="bu">print</span>(<span class="st">'warning, rectangular window not identified in image'</span>)</span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>      <span class="co">## generate grayscale value in/out of region from approximated contour</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a mask to identify the region of interest</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>      mask <span class="op">=</span> np.zeros(gray_crop_image.shape[:<span class="dv">2</span>], np.uint8)</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>      cv2.drawContours(mask, [approx_contour], <span class="dv">0</span>, <span class="dv">255</span>, <span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>      inner_gray <span class="op">=</span> cv2.mean(gray_crop_image, mask <span class="op">=</span> mask)[<span class="dv">0</span>] <span class="co">## mean values</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># invert the mask in order to pick the values in the other region</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>      newImage <span class="op">=</span> gray_crop_image[:,:]</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>      outer_mask <span class="op">=</span> cv2.bitwise_not(newImage, mask)</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>      outer_gray <span class="op">=</span> cv2.mean(gray_crop_image, mask <span class="op">=</span> outer_mask)[<span class="dv">0</span>]</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>      <span class="co">## get scale</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>      <span class="co"># crop top and bottom of scale</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>      scale_upper_crop <span class="op">=</span> image[<span class="dv">30</span>:<span class="dv">60</span>, <span class="dv">190</span>:<span class="dv">240</span>]</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>      scale_lower_crop <span class="op">=</span> image[<span class="dv">260</span>:<span class="dv">280</span>, <span class="dv">170</span>:<span class="dv">240</span>]</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>      <span class="co"># translate image to strings</span></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>      scale_upper <span class="op">=</span> pytesseract.image_to_string(scale_upper_crop)</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>      scale_lower <span class="op">=</span> pytesseract.image_to_string(scale_lower_crop)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>      gray_crop_image <span class="op">=</span> gray_image[<span class="dv">60</span>:<span class="dv">300</span>, <span class="dv">0</span>:<span class="dv">210</span>] <span class="co"># grayscale whole image</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>      <span class="co">## generate grayscale value in/out of region from approximated contour</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># use a mask to identify the region of interest</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>      mask <span class="op">=</span> np.zeros(gray_crop_image.shape[:<span class="dv">2</span>], np.uint8)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>      cv2.drawContours(mask, [approx_contour], <span class="dv">0</span>, <span class="dv">255</span>, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>      inner_gray <span class="op">=</span> cv2.mean(gray_crop_image, mask <span class="op">=</span> mask)[<span class="dv">0</span>] <span class="co">## mean values</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        <span class="co"># invert the mask in order to pick the values in the other region</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>      newImage <span class="op">=</span> gray_crop_image[:,:]</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>      outer_mask <span class="op">=</span> cv2.bitwise_not(newImage, mask)</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>      outer_gray <span class="op">=</span> cv2.mean(gray_crop_image, mask <span class="op">=</span> outer_mask)[<span class="dv">0</span>]</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>      <span class="co">## get scale</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>      <span class="co"># crop numbers at top and bottom of scale</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>      scale_upper_crop <span class="op">=</span> image[<span class="dv">30</span>:<span class="dv">60</span>, <span class="dv">190</span>:<span class="dv">240</span>]</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>      scale_lower_crop <span class="op">=</span> image[<span class="dv">260</span>:<span class="dv">280</span>, <span class="dv">170</span>:<span class="dv">240</span>]</span>
 <span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    img_post.append([image, returned_eps, approx_contour, inner_gray, outer_gray, scale_lower.strip(), scale_upper.strip()])</span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="co">#turn list img_post into a dataframe and return</span></span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> pd.DataFrame(img_post, columns <span class="op">=</span> [<span class="st">"image"</span>, <span class="st">"eps_for4"</span>, <span class="st">"approx_contour"</span>, <span class="st">"inner_gray"</span>, <span class="st">"outer_gray"</span>, <span class="st">"lower_scale_val"</span>, <span class="st">"upper scale val"</span>])</span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>      <span class="co"># translate image to strings</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>      scale_upper <span class="op">=</span> pytesseract.image_to_string(scale_upper_crop)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>      scale_lower <span class="op">=</span> pytesseract.image_to_string(scale_lower_crop)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>      <span class="cf">try</span>: </span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>        scale_upper_numeric <span class="op">=</span> <span class="bu">float</span>(scale_upper.strip())</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>      <span class="cf">except</span>:</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>        scale_upper_numeric <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>          <span class="co"># if upper string is not able to be converted, impute unreasonable number</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>      <span class="cf">try</span>:</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>        scale_lower_numeric <span class="op">=</span> <span class="bu">float</span>(scale_lower.strip())</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>      <span class="cf">except</span>:</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>        scale_lower_numeric <span class="op">=</span> <span class="op">-</span><span class="dv">20</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>          <span class="co"># if lower string is not able to be converted, impute lowest camera val</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>      scale_diff <span class="op">=</span> scale_upper_numeric <span class="op">-</span> scale_lower_numeric</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>      inner_temp <span class="op">=</span> (inner_gray<span class="op">/</span><span class="dv">215</span>)<span class="op">*</span>scale_diff <span class="op">+</span> scale_lower_numeric</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>      outer_temp <span class="op">=</span> (outer_gray<span class="op">/</span><span class="dv">215</span>)<span class="op">*</span>scale_diff <span class="op">+</span> scale_lower_numeric</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>      <span class="co"># temp = prop/grayscalerange*numericscale range + lower end of scale</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    img_post.append([image, returned_eps, approx_contour, inner_gray, inner_temp, outer_gray, outer_temp, scale_lower_numeric, scale_upper_numeric])</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>  <span class="co">#turn list img_post into a dataframe and return</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> pd.DataFrame(img_post, columns <span class="op">=</span> [<span class="st">"image"</span>, <span class="st">"eps_for4"</span>, <span class="st">"approx_contour"</span>, <span class="st">"inner_gray"</span>, <span class="st">"inner_temp"</span>, <span class="st">"outer_gray"</span>, <span class="st">"outer_temp"</span>, <span class="st">"lower_scale_val"</span>, <span class="st">"upper_scale_val"</span>])</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The summary of this sequence of functions on an image from an HIKMicro Camera can be seen here. Although the image is not clearly of a window and findContours() is picking up the sky as the object in the image, it is at least a demonstration of the function’s ability.</p>
-<div id="ee2f3e48" class="cell" data-execution_count="8">
+<p>We must remember that the single-dimension scale values do not necessarily span the entire (0,255) range, and adjust the temperature calculations based on the true scale difference. The translation from RGB to grayscale values is found in the imgproc module documentation (Open Source Computer Vision).</p>
+<div id="476f7183" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> cv2.imread(<span class="vs">r"images/IMG000001.jpeg"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> cv2.cvtColor(image, cv2.COLOR_BGR2RGB)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># find grayscale values from uncropped and translate to gray scale</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>r_u, g_u, b_u <span class="op">=</span> image[<span class="dv">256</span>,<span class="dv">225</span>]</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>gray_upper_val <span class="op">=</span> (<span class="fl">0.299</span><span class="op">*</span>r_u) <span class="op">+</span> (<span class="fl">0.587</span><span class="op">*</span>g_u) <span class="op">+</span> (<span class="fl">0.114</span><span class="op">*</span>b_u)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>r_l, g_l, b_l <span class="op">=</span> image[<span class="dv">64</span>, <span class="dv">225</span>]</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>gray_lower_val <span class="op">=</span> (<span class="fl">0.299</span><span class="op">*</span>r_l) <span class="op">+</span> (<span class="fl">0.587</span><span class="op">*</span>g_l) <span class="op">+</span> (<span class="fl">0.114</span><span class="op">*</span>b_l)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The summary of this sequence of functions on an image from an HIKMicro Camera can be seen here. There is work to be done in validating the results of the OCR used to calculate the scale of the image (the function was unable to recognize 13.5 as the bottom of the scale), but this is easily accomplished with the collection of new data and exploration of advanced binarization methods.</p>
+<div id="b4722a7f" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="infrared%20insights_files/figure-html/cell-9-output-1.png" width="540" height="335" class="figure-img"></p>
+<p><img src="infrared%20insights_files/figure-html/cell-10-output-1.png" width="540" height="335" class="figure-img"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                                               image  eps_for4  \
-0  [[[65, 240, 225], [68, 238, 225], [62, 223, 21...      0.04   
+<pre><code>Data Sample
+                                               image  eps_for4  \
+0  [[[220, 148, 28], [220, 149, 23], [222, 150, 1...      0.01   
 
-                                   approx_contour  inner_gray  outer_gray  \
-0  [[[0, 0]], [[0, 77]], [[209, 71]], [[209, 0]]]      59.107      75.927   
+                                      approx_contour  inner_gray  inner_temp  \
+0  [[[68, 0]], [[65, 211]], [[164, 208]], [[162, ...       69.67      -7.816   
 
-  lower_scale_val upper scale val  
-0          &lt;-30.0            11.0  </code></pre>
+   outer_gray  outer_temp  lower_scale_val  upper_scale_val  
+0      89.794      -4.297              -20             17.6  
+
+ Description of DataTypes
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 1 entries, 0 to 0
+Data columns (total 9 columns):
+ #   Column           Non-Null Count  Dtype  
+---  ------           --------------  -----  
+ 0   image            1 non-null      object 
+ 1   eps_for4         1 non-null      float64
+ 2   approx_contour   1 non-null      object 
+ 3   inner_gray       1 non-null      float64
+ 4   inner_temp       1 non-null      float64
+ 5   outer_gray       1 non-null      float64
+ 6   outer_temp       1 non-null      float64
+ 7   lower_scale_val  1 non-null      int64  
+ 8   upper_scale_val  1 non-null      float64
+dtypes: float64(6), int64(1), object(2)
+memory usage: 204.0+ bytes</code></pre>
 </div>
 </div>
 </section>
 <section id="recommendations" class="level2">
 <h2 class="anchored" data-anchor-id="recommendations">Recommendations</h2>
-<p>Clearly, there are plenty of next steps to be taken on this project before it would be a fully-functioning product. The first step would be to actually translate the grayscale values to temperature using the difference between the minimum and maximum values on the scale, and dividing by 255 to get the change in temperature in degrees Celcius per a one unit increase in grayscale value, and then multiplying this value by the inner_gray and outer_gray values to find the average temperature between regions of the image. Functionally, it would also be useful to implement some check for the values generated by Tesseract are reasonable temperature values. This may mean a flag for an unusually wide range in the scale values or some threshold of raw temperatures that the scale cannot exceed.</p>
-<p>There are also plenty of adjustments to be made to the existing code. Of utmost priority would be fixing the approx_four_sides() function to check if the vertices of the contour result in intersecting lines. ApproxContours returns an ordered list of points, so some calculation of the slopes between alternating points may be appropriate. This would return two lines between which the intercect could be calculated, and the function could continue looping through epsilon values until either the maximum epsilon is reached or the verticies do not result in intersecting lines. Even before this step, in the image pre-processing, we would also recommend an exploration into different methods of thresholding, such as Gaussian adaptive or mean adaptive, which account for images like the first sample image where the lighting across the image is not constant by allowing for different threshold values on each pixel based on the region around it. Using one of these methods may create a better outline of the shape of the window, regardless of any leakiness around it, in case of any unevenness in the image’s orientation. We would also encourage exploration of the pre-processing parameters such as the Gaussian blurring standard deviations and the thresholding value used to generate the initial contour.</p>
-<p>With additional images, we would also be interested in exploring methods of identifying leakiness that do not require as many images as a neural network. Some suggestions include sectioning some region around the window contour (such as a certain number of pixels around the contour) and taking the variability of temperature in that area. We would like to note that this should be taken as the variability in terms of the temperature of that region, not of the grayscale color value in order to gain this information on the same scale for all photos. Taking the variability of the grayscale value would result in images with a smaller temperature scale having higher variability than appropriate, since the change in temperature for an increase in grayscale units is not uniform across images. Alternatively, once the four-sided contours are fleshed out, there is potential information in the area difference between the original contour and its four-sided approximation. It is possible that a leaky window would have a larger area difference, if the leakiness manifests as a sort of intrusion outside of the window frame. We would look forward to exploring these suggestions with more appropriate images.</p>
+<p>This project is a work in progress and has much to be done before it could serve as a fully functioning product.</p>
+<p>To begin, there are plenty of adjustments to be made to the existing code. In the image pre-processing, we would also recommend an exploration into different methods of thresholding, such as Gaussian adaptive or mean adaptive, which account for images like the first sample image where the lighting across the image is not constant by allowing for different threshold values on each pixel based on the region around it. Using one of these methods may create a better outline of the shape of the window, regardless of any leakiness around it, in case of any unevenness in the image’s orientation. We would also encourage exploration of the pre-processing parameters such as the Gaussian blurring standard deviations and the thresholding value used to generate the initial contour. Of utmost priority would be fixing the approx_four_sides() function to check if the vertices of the contour result in intersecting lines (see appendix B(a) for more context). FindContours() returns an ordered list of points, so some calculation of the slopes between alternating points may be appropriate. This would return two lines between which the intersect could be calculated, and the function could continue looping through epsilon values until either the maximum epsilon is reached or the verticies do not result in intersecting lines.</p>
+<p>Additionally, a method to adjust the temperature methods in the bulk_contours() function based on the scale (Fahrenheit or Celcius) of the image would contribute to the quality of data produced, and allow some flexibility in the types of images the function can receive. In line with this goal of data quality, it would also be useful to implement some check for the values generated by Tesseract are reasonable temperature values. This may mean a flag for an unusually wide range in the scale values or some threshold of raw temperatures that the scale cannot exceed.</p>
+<p>With additional images, we would also be interested in exploring methods of identifying leakiness that do not require as many images as a neural network. Some suggestions include sectioning some region around the window contour (such as a certain number of pixels around the contour) and taking the variability of temperature in that area. We would like to note that this should be taken as the variability in terms of the temperature of that region, not of the grayscale color value in order to gain this information on the same scale for all photos. Taking the variability of the grayscale value would result in images with a smaller temperature scale having higher variability than appropriate, since the change in temperature for an increase in grayscale units is not uniform across images. Alternatively, once the four-sided contours are fleshed out, there is potential information in the difference in area between the original contour and its four-sided approximation. It is possible that a leaky window would have a larger area difference, if the leakiness manifests as a sort of intrusion outside of the window frame. We would look forward to exploring these suggestions with more appropriate images.</p>
 <p>Along with sample size, the limitation of this method that finds a contour and approximates a four-sided shape from it is that not being able to find a rectangular window when it is indeed in the photo might be a sign of leakiness. As the method stands now, this information would be censored, which is especially negative when the number of images to work with is already so small.</p>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>While we did not reach a stage in which fully automated image processing was implemented, our methodologies developed and preliminary findings serve as a foundational piece to continue future research and development on. Due to time and data constraints we were unable to rigorously test and evaluate the efficacy of our process, however, going forward we recommend implementing the suggested improvements in the data collection process. We are optimistic that in continuing our work, these implementations will assist in the establishment of an automated detection process. As we look to the future, the lessons learned from this project will undoubtedly inform and improve ongoing efforts in the field of at-home thermal image analysis, driving us closer to our overall goal of making this technology a practical tool for homeowners to assess and enhance their window insulation efficiency effectively.</p>
+<p>While we did not reach a stage in which fully automated image processing was implemented, our methodologies developed and preliminary findings serve as a foundational piece to continue future research and development on. Due to time and data constraints we were unable to rigorously test and evaluate the efficacy of our process, however, going forward we recommend implementing the suggested improvements in the data collection process. We are optimistic that in continuing our work, these implementations will assist in the establishment of an automated ‘leaky window’ detection process. As we look to the future, the lessons learned from this project will undoubtedly inform and improve ongoing efforts in the field of at-home thermal image analysis, driving us closer to our overall goal of making this technology a practical tool for homeowners to assess and enhance their window insulation efficiency effectively.</p>
+<div style="page-break-after: always;"></div>
 </section>
 <section id="acknowledgements" class="level2">
 <h2 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
-<p>Leah Boger and Brandon Nguy also contributed to a preliminary version of this report.</p>
+<p>Thank you to Leah Boger and Brandon Nguy who contributed to a preliminary version of this report.</p>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
@@ -311,6 +402,7 @@ Figure&nbsp;3: Resulting Four Sided Contour
 <p>Open Source Computer Vision. “Image Processing (imgproc module).” OpenCV Tutorials, 4.10.0.dev, https://docs.opencv.org/4.x/d7/da8/tutorial_table_of_content_imgproc.html.</p>
 <p>Tuychiev, Bex. “A Comprehensive Tutorial on Optical Character Recognition (OCR) in Python With Pytesseract.” DataCamp, April 2024, https://www.datacamp.com/tutorial/optical-character-recognition-ocr-in-python-with-pytesseract.</p>
 <p>Weil, Stephen. “Tesseract Open Source OCR Engine.” Github, https://github.com/tesseract-ocr/tesseract.</p>
+<div style="page-break-after: always;"></div>
 </section>
 <section id="appendix-a" class="level2">
 <h2 class="anchored" data-anchor-id="appendix-a">Appendix A</h2>
@@ -352,6 +444,45 @@ Figure&nbsp;3: Resulting Four Sided Contour
 <li><p>Ordinal Direction Please record the direction that the window is FACING. Pick the most accurate answer possible. For example, for the window below, you would record “West” as the direction the window is facing</p>
 <p><img src="images/Screenshot%202024-09-14%20152244.png" class="img-fluid" width="435"></p></li>
 </ul>
+</section>
+</section>
+<section id="appendix-b" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-b">Appendix B</h2>
+<section id="known-issues" class="level3">
+<h3 class="anchored" data-anchor-id="known-issues">Known Issues</h3>
+<ol type="a">
+<li>approx_four_sides()</li>
+</ol>
+<p>Due to the binarization of the image before identifying the contour, if the pane of a window is not uniformly colored, the contour may not identify the whole window based on the threshold values.</p>
+<div id="cell-fig-contour_smooth" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<div id="fig-contour_smooth" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-contour_smooth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="infrared%20insights_files/figure-html/fig-contour_smooth-output-1.png" width="500" height="389" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-contour_smooth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Resulting Contour of an Off-Axis Image
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>An example of this can be seen in <a href="#fig-contour_smooth" class="quarto-xref">Figure&nbsp;4</a>, where the contour indents into the middle of the window because of the angle of the image. This can result in issues when we try to approximate a four-sided contour, as seen in <a href="#fig-contour_bad" class="quarto-xref">Figure&nbsp;5</a>, where although the contour is defined by four edges, those four edges do not form an open figure.</p>
+<div id="cell-fig-contour_bad" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div id="fig-contour_bad" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-contour_bad-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="infrared%20insights_files/figure-html/fig-contour_bad-output-1.png" width="500" height="389" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-contour_bad-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Resulting Four Sided Contour of an Off-Axis Image
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 </section>
 
